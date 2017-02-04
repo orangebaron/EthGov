@@ -11,7 +11,7 @@
 Main
  - Permissions: All
  - Functions:
-  - addContract(code,permissions,id)
+  - addContract(code,id)
   - removeContract(id)
   - updateContract(id,code)
   - update(code)
