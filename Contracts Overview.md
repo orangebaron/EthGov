@@ -16,7 +16,7 @@ Main
   - updateContract(id,code)
   - update(code)
   - spendEther(address,amt)
-  - givePermissions(address,permissions) //even if you "have permission" to use this you can only give permissions you already have
+  - givePermission(address,permission) //even if you "have permission" to use this you can only give permissions you already have
 
 Government
  - Permissions: All
