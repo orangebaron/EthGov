@@ -17,6 +17,7 @@ Main
   - update(code)
   - spendEther(address,amt)
   - givePermission(address,permission) //even if you "have permission" to use this you can only give permissions you already have
+  - removePermission(address,permission)
 
 Government
  - Permissions: All
