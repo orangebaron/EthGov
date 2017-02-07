@@ -1,6 +1,8 @@
 pragma solidity ^0.4.8;
 
 contract OrangeGov_Main {
+    address public currentContract;
+    
 	mapping(address=>mapping(string=>bool)) permissions;
 	mapping(address=>mapping(string=>bool)) userStatuses;
 	mapping(string=>address) addresses;
@@ -26,11 +28,17 @@ contract OrangeGov_Main {
             addr := create(0,add(code,0x20), mload(code))
             jumpi(invalidJumpLabel,iszero(extcodesize(addr)))
         }
+        address oldAddr = contractIDs[ID];
 	    contractIDs[ID]=addr;
 	    contractIDExists[ID]=true;
+	    //warnings below are irrelevant
+	    oldAddr.call.gas(msg.gas)(bytes4(sha3("changeCurrentContract(address)")),addr); //if there was a previous contract, tell it the new one's address
+	    addr.call.gas(msg.gas)(bytes4(sha3("tellPreviousContract(address)")),oldAddr); //feed it the address of the previous contract
 	}
 	function removeContract(string ID) permissionRequired("removeContract",""){
 	    contractIDExists[ID]=false;
+	    //warning below is irrelevant
+	    contractIDs[ID].call.gas(msg.gas)(bytes4(sha3("changeCurrentContract(address)")),currentContract); //make sure people using know it's out of service
 	}
 	//TO DO HERE: UPDATE
 	function spendEther(address addr, uint256 weiAmt) permissionRequired("spendEther",""){
@@ -54,10 +62,20 @@ contract OrangeGov_Template {
             main=newMain;
         }
     }
+    function changeCurrentContract(address newCurrent){
+        if (msg.sender==main){
+            currentContract=newCurrent;
+        }
+    }
     modifier permissionRequired(string permissionName,string userStatusAllowed) { //userStatusAllowed - a certain user status is the only thing necessary to run the function
         _;
         if (!OrangeGov_Main(main).getHasPermission(msg.sender,permissionName,userStatusAllowed)){
             throw;
         }
     }
+    
+    function OrangeGov_Template (address currentMain){
+        main = msg.sender;
+    }
+    //TO GATHER DATA FROM PREVIOUS CONTRACT, MAKE A FUNCTION CALLED tellPreviousContract(address prev) WHICH FEEDS IT THE PREVIOUS CONTRACT'S ADDRESS
 }
